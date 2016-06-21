@@ -2,7 +2,10 @@ package br.com.alura.loja;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.After;
@@ -13,6 +16,7 @@ import org.junit.Test;
 import com.thoughtworks.xstream.XStream;
 
 import br.com.alura.loja.modelo.Carrinho;
+import br.com.alura.loja.modelo.Produto;
 import br.com.alura.loja.modelo.Projeto;
 
 public class ClienteTest {
@@ -36,10 +40,10 @@ public class ClienteTest {
 		// String conteudo =
 		// target.path("/v2/52aaf5deee7ba8c70329fb7d").request().get(String.class);
 		WebTarget target = client.target("http://localhost:8080");
-		String conteudo = target.path("/carrinhos").request().get(String.class);
+		String conteudo = target.path("/carrinhos/1").request().get(String.class);
 		System.out.println(conteudo);
 		Carrinho carrinho = (Carrinho) new XStream().fromXML(conteudo);
-		Assert.assertTrue(carrinho.getRua().equals("Rua Vergueiro 3185"));
+		Assert.assertTrue(carrinho.getRua().contains("Rua Vergueiro 3185"));
 
 	}
 
@@ -47,9 +51,26 @@ public class ClienteTest {
 	public void testaQueBuscarUmProjetoTrazOProjetoEsperado() {
 		Client client = ClientBuilder.newClient();
 		WebTarget target = client.target("http://localhost:8080");
-		String conteudo = target.path("/projeto").request().get(String.class);
+		String conteudo = target.path("/projeto/1").request().get(String.class);
 		System.out.println("Projetos " + conteudo);
 		Projeto projeto = (Projeto) new XStream().fromXML(conteudo);
-		Assert.assertEquals("Minha loja", projeto.getNome());
+		Assert.assertTrue(projeto.getNome().contains("Minha loja"));
+	}
+
+	@Test
+	public void testaQueSuportaNovosCarrinhos() {
+		Client client = ClientBuilder.newClient();
+		WebTarget target = client.target("http://localhost:8080");
+		Carrinho carrinho = new Carrinho();
+		carrinho.adiciona(new Produto(314L, "Tablet", 999, 1));
+		carrinho.setRua("Rua Vergueiro");
+		carrinho.setCidade("Sao Paulo");
+		String xml = carrinho.toXML();
+
+		Entity<String> entity = Entity.entity(xml, MediaType.APPLICATION_XML);
+
+		Response response = target.path("/carrinhos").request().post(entity);
+		Assert.assertEquals(201, response.getStatus());
+		
 	}
 }
