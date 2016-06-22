@@ -8,6 +8,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.filter.LoggingFilter;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,10 +24,14 @@ import br.com.alura.loja.modelo.Projeto;
 public class ClienteTest {
 
 	private HttpServer server;
-
+	
+    ClientConfig config = new ClientConfig();
+    
 	@Before
 	public void startaServidor() {
-		this.server = Servidor.inicializaServidor();
+		server = Servidor.inicializaServidor();
+        config.register(new LoggingFilter());
+    
 	}
 
 	@After
@@ -35,7 +41,7 @@ public class ClienteTest {
 
 	@Test
 	public void testaQueBuscarUmCarrinhoTrazOCarrinhoEsperado() {
-		Client client = ClientBuilder.newClient();
+		Client client = ClientBuilder.newClient(config);
 		// WebTarget target = client.target("http://www.mocky.io"); Alura
 		// String conteudo =
 		// target.path("/v2/52aaf5deee7ba8c70329fb7d").request().get(String.class);
@@ -49,7 +55,7 @@ public class ClienteTest {
 
 	@Test
 	public void testaQueBuscarUmProjetoTrazOProjetoEsperado() {
-		Client client = ClientBuilder.newClient();
+		Client client = ClientBuilder.newClient(config);
 		WebTarget target = client.target("http://localhost:8080");
 		String conteudo = target.path("/projeto/1").request().get(String.class);
 		System.out.println("Projetos " + conteudo);
@@ -59,7 +65,7 @@ public class ClienteTest {
 
 	@Test
 	public void testaQueSuportaNovosCarrinhos() {
-		Client client = ClientBuilder.newClient();
+		Client client = ClientBuilder.newClient(config);
 		WebTarget target = client.target("http://localhost:8080");
 		Carrinho carrinho = new Carrinho();
 		carrinho.adiciona(new Produto(314L, "Tablet", 999, 1));
