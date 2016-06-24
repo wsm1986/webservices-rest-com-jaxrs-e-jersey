@@ -1,8 +1,14 @@
 package br.com.alura.loja.modelo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.google.gson.Gson;
 import com.thoughtworks.xstream.XStream;
 
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Projeto {
 
 	private long id;
@@ -10,14 +16,12 @@ public class Projeto {
 	private int anoDeInicio;
 
 	public Projeto(long id, String nome, int anoDeInicio) {
-		super();
 		this.nome = nome;
 		this.id = id;
 		this.anoDeInicio = anoDeInicio;
 	}
 
 	public Projeto() {
-
 	}
 
 	public String getNome() {
